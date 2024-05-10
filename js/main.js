@@ -1,5 +1,5 @@
 import Player from "./player.js";
-//import Enemy from "./enemy.js";
+import Enemy from "./enemy.js";
 import Platform from "./platform.js";
 import { checkCollision, handleCollisions } from "./collision.js";
 
@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
 
-  // Load player image
-  const playerImage = new Image();
-  playerImage.src = "./images/super-mario_31x58.png";
+  // Get images from HTML
+  const playerImage = document.getElementById("playerImage");
+  const enemiesImage = document.getElementById("enemiesImage"); // sprite sheet
 
   // Initialize player (x, y, image)
   const player = new Player(
@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.height - playerImage.height - 180,
     playerImage
   );
+
+  // Initialize enemy (x, y, image)
+  const enemy = new Enemy(canvas.width, canvas.height / 2, enemiesImage);
 
   // Initialize platforms (x, y, w, h)
   const platforms = [
@@ -43,22 +46,22 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  function renderPlatforms() {
+  function renderPlatforms(ctx) {
     platforms.forEach((platform) => {
       platform.render(ctx);
     });
   }
 
-  // Other functions remain the same...
-
+  // game loop
   function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //drawBackground();
-    renderPlatforms();
-    //updatePlayer();
+    renderPlatforms(ctx);
     player.update(keys, canvas);
     //handlePlayerPlatformCollision();
     player.render(ctx);
+    enemy.update();
+    enemy.render(ctx);
     requestAnimationFrame(gameLoop);
   }
 
