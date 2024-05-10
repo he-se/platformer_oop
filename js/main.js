@@ -1,5 +1,5 @@
 import Player from "./player.js";
-import Enemy from "./enemy.js";
+//import Enemy from "./enemy.js";
 import Platform from "./platform.js";
 import { checkCollision, handleCollisions } from "./collision.js";
 
