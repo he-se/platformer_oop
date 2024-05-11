@@ -66,11 +66,21 @@ document.addEventListener("DOMContentLoaded", () => {
     enemies.forEach((enemy, index) => {
       if (checkCollision(player, enemy)) {
         // Handle player-enemy collision
-        if (player.velocityY > 0) {
-          // kill enemy
-          enemies.splice(index, 1); // Remove the enemy from the array
-          if (enemies.length === 0) console.log(" You win!");
-        } else collisionDetected = true;
+        if (player.velocityY > 0 && player.y + player.height < enemy.y + 20) {
+          // player kills enemy
+          enemy.hit = true;
+        } else if (!enemy.hit) collisionDetected = true; // player dies
+      }
+    });
+  }
+
+  function killEnemies() {
+    // Check if enemy is not alive
+    enemies.forEach((enemy, index) => {
+      if (!enemy.alive) {
+        // remove enemy
+        enemies.splice(index, 1); // Remove the enemy from the array
+        if (enemies.length === 0) console.log(" You win!");
       }
     });
   }
@@ -106,6 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
       enemy.update();
       enemy.render(ctx);
     });
+
+    killEnemies();
 
     if (!collisionDetected) {
       // If collision hasn't occurred, continue the game loop

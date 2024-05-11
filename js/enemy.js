@@ -44,11 +44,17 @@ export default class Enemy {
         this.spriteY = 2;
         break;
     }
+    this.hit = false;
+    this.alive = true;
+    this.size = 1;
   }
 
   update() {
-    this.x += this.speed;
-    this.y += this.velocityY;
+    if (!this.hit) {
+      this.x += this.speed;
+      this.y += this.velocityY;
+    }
+
     // move enemy to the right again, random distance from canvas
     if (this.x < -this.width) {
       this.sprite_number === 3
@@ -77,6 +83,8 @@ export default class Enemy {
       );
     }
 
+    this.size = this.hit ? this.size * 0.9 : 1;
+    if (this.size < 0.1) this.alive = false;
     // 9 argument command (image, sx, sy, sw, sh, dx, dy, dw, dh)  -> s= source, d= destination
     ctx.drawImage(
       this.image,
@@ -86,8 +94,8 @@ export default class Enemy {
       this.height,
       this.x,
       this.y,
-      this.width * 2,
-      this.height * 2
+      this.width * 2 * this.size,
+      this.height * 2 * this.size
     );
   }
 }
