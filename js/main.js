@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
 
+  let startTime = Date.now(); // Record the start time of the game
+
   // Get images from HTML
   const playerImage = document.getElementById("playerImage");
   const enemiesImage = document.getElementById("enemiesImage"); // sprite sheet
@@ -81,6 +83,20 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+    // Calculate elapsed time
+    const elapsedTime = Date.now() - startTime;
+    const minutes = Math.floor(elapsedTime / 60000);
+    const seconds = Math.floor((elapsedTime % 60000) / 1000);
+
+    // Display elapsed time in the top-left corner
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.fillText(
+      `Time: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`,
+      10,
+      20
+    );
+
     //drawBackground();
     renderPlatforms(ctx);
     player.update(keys, canvas, platforms);
