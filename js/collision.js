@@ -8,7 +8,7 @@ export function checkCollision(entity1, entity2) {
   );
 }
 
-export function handleCollisions() {
+export function handlePlayerCollisions() {
   // Check for collisions between player and enemies
   enemies.forEach((enemy) => {
     if (checkCollision(player, enemy)) {

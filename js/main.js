@@ -1,7 +1,7 @@
 import Player from "./player.js";
 import Enemy from "./enemy.js";
 import Platform from "./platform.js";
-import { checkCollision, handleCollisions } from "./collision.js";
+import { checkCollision, handlePlayerCollisions } from "./collision.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("gameCanvas");
@@ -18,8 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
     playerImage
   );
 
-  // Initialize enemy (x, y, image)
-  const enemy = new Enemy(canvas.width, canvas.height / 2, enemiesImage);
+  // Initialize enemies (x, y, image, sprite_number)
+  const enemies = [
+    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
+    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
+    new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
+    new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 3),
+  ];
 
   // Initialize platforms (x, y, w, h)
   const platforms = [
@@ -52,17 +57,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function handleCollisions() {
+    // Check for collisions between player and enemies
+    enemies.forEach((enemy) => {
+      if (checkCollision(player, enemy)) {
+        // Handle player-enemy collision (e.g., decrease player health)
+        collisionDetected = true;
+      }
+      console.log(checkCollision(player, enemy));
+    });
+  }
+
   // game loop
+  let collisionDetected = false;
   function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Check if collision has not occurred
+    if (!collisionDetected) {
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
     //drawBackground();
     renderPlatforms(ctx);
     player.update(keys, canvas);
-    //handlePlayerPlatformCollision();
+    handleCollisions();
     player.render(ctx);
-    enemy.update();
-    enemy.render(ctx);
-    requestAnimationFrame(gameLoop);
+    enemies.forEach((enemy) => {
+      enemy.update();
+      enemy.render(ctx);
+    });
+
+    if (!collisionDetected) {
+      // If collision hasn't occurred, continue the game loop
+      requestAnimationFrame(gameLoop);
+    } else {
+      // Collision detected, stop the game
+      console.log("Collision detected, game stopped.");
+    }
   }
 
   gameLoop();
