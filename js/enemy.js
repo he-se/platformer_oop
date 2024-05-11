@@ -51,9 +51,12 @@ export default class Enemy {
     this.y += this.velocityY;
     // move enemy to the right again, random distance from canvas
     if (this.x < -this.width) {
-      this.sprite_number == 3
+      this.sprite_number === 3
         ? (this.x = this.orginalX)
         : (this.x = (Math.random() + 1) * this.orginalX);
+      this.sprite_number !== 3
+        ? (this.speed = -(Math.random() + 0.5))
+        : (this.speed = -1);
       this.y = this.orginalY;
     }
   }

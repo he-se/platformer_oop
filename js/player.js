@@ -50,7 +50,7 @@ export default class Player {
     // Collision detection with platforms
     this.isOnGround = false; // Reset flag
     platforms.forEach((platform) => {
-      if (this.isCollidingHorizontally(platform)) {
+      if (this.isColliding(platform)) {
         if (this.velocityY > 0 && this.y + this.height < platform.y + 20) {
           // Player is falling
           this.y = platform.y - this.height; // Snap player to top of platform
@@ -71,34 +71,6 @@ export default class Player {
           this.x = platform.x + platform.width; // Snap player to right edge of platform
         }
       }
-
-      /* 
-      // Check collision horizontally
-      if (this.isCollidingHorizontally(platform)) {
-        if (this.velocityX > 0) {
-          // Player is moving right
-          this.x = platform.x - this.width; // Snap player to left edge of platform
-        } else if (this.velocityX < 0) {
-          // Player is moving left
-          this.x = platform.x + platform.width; // Snap player to right edge of platform
-        }
-        this.velocityX = 0; // Stop horizontal velocity
-      }
-
-      // Check collision vertically
-      if (this.isCollidingVertically(platform)) {
-        if (this.velocityY > 0) {
-          // Player is falling
-          this.y = platform.y - this.height; // Snap player to top of platform
-          this.velocityY = 0; // Stop downward velocity
-          this.isOnGround = true; // Player is on the ground
-        } else if (this.velocityY < 0) {
-          // Player is jumping and hits the ceiling
-          this.y = platform.y + platform.height; // Snap player to bottom of platform
-          this.velocityY = 0; // Stop upward velocity
-        }
-      }
- */
     });
 
     // Update player position based on input or other factors
@@ -115,17 +87,7 @@ export default class Player {
   }
 
   // Method to check collision with a platform horizontally
-  isCollidingHorizontally(platform) {
-    return (
-      this.x < platform.x + platform.width &&
-      this.x + this.width > platform.x &&
-      this.y < platform.y + platform.height &&
-      this.y + this.height > platform.y
-    );
-  }
-
-  // Method to check collision with a platform vertically
-  isCollidingVertically(platform) {
+  isColliding(platform) {
     return (
       this.x < platform.x + platform.width &&
       this.x + this.width > platform.x &&

@@ -20,11 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize enemies (x, y, image, sprite_number)
   const enemies = [
-    // new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
-    // new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
-    // new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
-    // new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 0),
-    // new Enemy(canvas.width * 1.2, (9 * canvas.height) / 10, enemiesImage, 3),
+    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
+    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
+    new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
+    new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 0),
+    new Enemy(canvas.width * 1.2, (9 * canvas.height) / 10, enemiesImage, 3),
   ];
 
   // Initialize platforms (x, y, w, h)
@@ -59,12 +59,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function handleCollisions() {
+  function handleEnemyCollisions() {
     // Check for collisions between player and enemies
-    enemies.forEach((enemy) => {
+    enemies.forEach((enemy, index) => {
       if (checkCollision(player, enemy)) {
-        // Handle player-enemy collision (e.g., decrease player health)
-        collisionDetected = true;
+        // Handle player-enemy collision
+        if (player.velocityY > 0) {
+          // kill enemy
+          enemies.splice(index, 1); // Remove the enemy from the array
+          if (enemies.length === 0) console.log(" You win!");
+        } else collisionDetected = true;
       }
     });
   }
@@ -80,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //drawBackground();
     renderPlatforms(ctx);
     player.update(keys, canvas, platforms);
-    handleCollisions();
+    handleEnemyCollisions();
     player.render(ctx);
     enemies.forEach((enemy) => {
       enemy.update();
