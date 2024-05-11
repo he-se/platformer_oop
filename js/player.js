@@ -10,6 +10,7 @@ export default class Player {
     this.height = 58;
 
     this.speed = 5;
+    this.velocityX = 0;
     this.velocityY = 0;
     this.jumpStrength = 10;
     this.gravity = 0.5;
@@ -18,12 +19,14 @@ export default class Player {
   }
 
   moveLeft() {
-    this.x += -this.speed;
+    this.velocityX = -this.speed;
+    this.x += this.velocityX;
     this.isFacingLeft = true;
   }
 
   moveRight() {
-    this.x += this.speed;
+    this.velocityX = this.speed;
+    this.x += this.velocityX;
     this.isFacingLeft = false;
   }
 
@@ -34,15 +37,69 @@ export default class Player {
     }
   }
 
-  update(keys, canvas) {
+  update(keys, canvas, platforms) {
     // Apply gravity
     this.velocityY += this.gravity;
     this.y += this.velocityY;
     // Check for collision with the ground
-    if (this.y > this.yBaseLevel) {
-      this.isOnGround = true;
-      this.y = this.yBaseLevel;
-    }
+    // if (this.y > this.yBaseLevel) {
+    //   this.isOnGround = true;
+    //   this.y = this.yBaseLevel;
+    // }
+
+    // Collision detection with platforms
+    this.isOnGround = false; // Reset flag
+    platforms.forEach((platform) => {
+      if (this.isCollidingHorizontally(platform)) {
+        if (this.velocityY > 0 && this.y + this.height < platform.y + 20) {
+          // Player is falling
+          this.y = platform.y - this.height; // Snap player to top of platform
+          this.velocityY = 0; // Stop downward velocity
+          this.isOnGround = true; // Player is on the ground
+        } else if (
+          this.velocityY < 0 &&
+          this.y > platform.y + platform.height - 20
+        ) {
+          // Player is jumping and hits the ceiling
+          this.y = platform.y + platform.height; // Snap player to bottom of platform
+          this.velocityY = 0; // Stop upward velocity
+        } else if (this.velocityX > 0) {
+          // Player is moving right
+          this.x = platform.x - this.width; // Snap player to left edge of platform
+        } else if (this.velocityX < 0) {
+          // Player is moving left
+          this.x = platform.x + platform.width; // Snap player to right edge of platform
+        }
+      }
+
+      /* 
+      // Check collision horizontally
+      if (this.isCollidingHorizontally(platform)) {
+        if (this.velocityX > 0) {
+          // Player is moving right
+          this.x = platform.x - this.width; // Snap player to left edge of platform
+        } else if (this.velocityX < 0) {
+          // Player is moving left
+          this.x = platform.x + platform.width; // Snap player to right edge of platform
+        }
+        this.velocityX = 0; // Stop horizontal velocity
+      }
+
+      // Check collision vertically
+      if (this.isCollidingVertically(platform)) {
+        if (this.velocityY > 0) {
+          // Player is falling
+          this.y = platform.y - this.height; // Snap player to top of platform
+          this.velocityY = 0; // Stop downward velocity
+          this.isOnGround = true; // Player is on the ground
+        } else if (this.velocityY < 0) {
+          // Player is jumping and hits the ceiling
+          this.y = platform.y + platform.height; // Snap player to bottom of platform
+          this.velocityY = 0; // Stop upward velocity
+        }
+      }
+ */
+    });
 
     // Update player position based on input or other factors
     if (keys["ArrowLeft"]) {
@@ -55,6 +112,26 @@ export default class Player {
       this.jump();
       keys["ArrowUp"] = false;
     }
+  }
+
+  // Method to check collision with a platform horizontally
+  isCollidingHorizontally(platform) {
+    return (
+      this.x < platform.x + platform.width &&
+      this.x + this.width > platform.x &&
+      this.y < platform.y + platform.height &&
+      this.y + this.height > platform.y
+    );
+  }
+
+  // Method to check collision with a platform vertically
+  isCollidingVertically(platform) {
+    return (
+      this.x < platform.x + platform.width &&
+      this.x + this.width > platform.x &&
+      this.y < platform.y + platform.height &&
+      this.y + this.height > platform.y
+    );
   }
 
   render(ctx) {

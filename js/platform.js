@@ -7,7 +7,7 @@ export default class Platform {
   }
 
   render(ctx) {
-    ctx.fillStyle = "green";
+    ctx.fillStyle = "rgba(255, 0, 0, 0.01)"; // transparent
     ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 }

@@ -14,22 +14,24 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize player (x, y, image)
   const player = new Player(
     canvas.width / 2,
-    canvas.height - playerImage.height - 180,
+    canvas.height - playerImage.height - 200,
     playerImage
   );
 
   // Initialize enemies (x, y, image, sprite_number)
   const enemies = [
-    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
-    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
-    new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
-    new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 3),
+    // new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
+    // new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
+    // new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
+    // new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 0),
+    // new Enemy(canvas.width * 1.2, (9 * canvas.height) / 10, enemiesImage, 3),
   ];
 
   // Initialize platforms (x, y, w, h)
   const platforms = [
-    new Platform(100, 400, 200, 20),
-    new Platform(300, 300, 150, 20),
+    new Platform(57, 337, 100, 20),
+    new Platform(117, 292, 64, 20),
+    new Platform(0, canvas.height - 180, 800, 20),
   ];
 
   // Keyboard input handling
@@ -64,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Handle player-enemy collision (e.g., decrease player health)
         collisionDetected = true;
       }
-      console.log(checkCollision(player, enemy));
     });
   }
 
@@ -78,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     //drawBackground();
     renderPlatforms(ctx);
-    player.update(keys, canvas);
+    player.update(keys, canvas, platforms);
     handleCollisions();
     player.render(ctx);
     enemies.forEach((enemy) => {
