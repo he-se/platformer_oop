@@ -1,183 +1,214 @@
 import Player from "./player.js";
 import Enemy from "./enemy.js";
 import Platform from "./platform.js";
-import { checkCollision, handlePlayerCollisions } from "./collision.js";
+import { checkCollision } from "./collision.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.getElementById("gameCanvas");
-  const ctx = canvas.getContext("2d");
+class Game {
+  constructor(canvasId, playerImageId, enemiesImageId, restartButtonId) {
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas.getContext("2d");
 
-  // Get images from HTML
-  const playerImage = document.getElementById("playerImage");
-  const enemiesImage = document.getElementById("enemiesImage"); // sprite sheet
+    // Get images from HTML
+    this.playerImage = document.getElementById(playerImageId);
+    this.enemiesImage = document.getElementById(enemiesImageId); // sprite sheet
 
-  // Get button from HTML
-  const button = document.getElementById("restart");
+    // Get button from HTML
+    this.restartButton = document.getElementById(restartButtonId);
 
-  let startTime;
-  let player;
-  let enemies = [];
-  let platforms = [];
-  let collisionDetected = false;
-  let win = false;
-  let score = 0;
+    this.player;
+    this.enemies = [];
+    this.platforms = [];
+    this.collisionDetected = false;
+    this.win = false;
+    this.score = 0;
+    this.startTime;
+    this.keys = {}; // Object to track pressed keys
 
-  // Add event listener to the button
-  button.addEventListener("click", restartGame);
+    // Bind event listeners and game loop
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.restartGame = this.restartGame.bind(this);
+    this.gameLoop = this.gameLoop.bind(this);
+    // Add event listener to the button
+    this.restartButton.addEventListener("click", this.restartGame);
 
-  // Keyboard input handling
-  document.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("keyup", handleKeyUp);
+    // Keyboard input handling
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
 
-  function init() {
+    this.init();
+  }
+  init() {
     // Record the start time of the game
-    startTime = Date.now();
-    collisionDetected = false;
-    win = false;
-    score = 0;
+    this.startTime = Date.now();
+    this.collisionDetected = false;
+    this.win = false;
+    this.score = 0;
 
     // Initialize player (x, y, image)
-    player = new Player(
-      canvas.width / 2,
-      canvas.height - playerImage.height - 200,
-      playerImage
+    this.player = new Player(
+      this.canvas.width / 2,
+      this.canvas.height - this.playerImage.height - 200,
+      this.playerImage
     );
 
     // Initialize enemies (x, y, image, sprite_number)
-    enemies = [
-      new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
-      new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
-      new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
-      new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 0),
-      new Enemy(canvas.width * 1.2, (9 * canvas.height) / 10, enemiesImage, 3),
+    this.enemies = [
+      new Enemy(
+        this.canvas.width,
+        this.canvas.height / 2,
+        this.enemiesImage,
+        0
+      ),
+      new Enemy(
+        this.canvas.width,
+        this.canvas.height / 2,
+        this.enemiesImage,
+        1
+      ),
+      new Enemy(
+        this.canvas.width * 1.5,
+        this.canvas.height / 2,
+        this.enemiesImage,
+        2
+      ),
+      new Enemy(
+        this.canvas.width * 2,
+        this.canvas.height / 2,
+        this.enemiesImage,
+        0
+      ),
+      new Enemy(
+        this.canvas.width * 1.2,
+        (9 * this.canvas.height) / 10,
+        this.enemiesImage,
+        3
+      ),
     ];
 
     // Initialize platforms (x, y, w, h)
-    platforms = [
+    this.platforms = [
       new Platform(57, 337, 100, 20),
       new Platform(117, 292, 64, 20),
-      new Platform(0, canvas.height - 180, 800, 20),
+      new Platform(0, this.canvas.height - 180, 800, 20),
     ];
-    gameLoop();
+    this.gameLoop();
   }
 
-  let keys = {}; // Object to track pressed keys
-
-  function handleKeyDown(event) {
-    keys[event.key] = true;
+  handleKeyDown(event) {
+    this.keys[event.key] = true;
   }
 
-  function handleKeyUp(event) {
-    keys[event.key] = false;
+  handleKeyUp(event) {
+    this.keys[event.key] = false;
   }
 
-  function drawBackground() {
-    ctx.fillStyle = "lightblue";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function handleEnemyCollisions() {
+  handleEnemyCollisions() {
     // Check for collisions between player and enemies
-    enemies.forEach((enemy, index) => {
-      if (checkCollision(player, enemy)) {
+    this.enemies.forEach((enemy, index) => {
+      if (checkCollision(this.player, enemy)) {
         // Handle player-enemy collision
         // if hit on top
-        if (player.velocityY > 0 && player.y + player.height < enemy.y + 20) {
+        if (
+          this.player.velocityY > 0 &&
+          this.player.y + this.player.height < enemy.y + 20
+        ) {
           // player kills enemy
           enemy.hit = true;
-          killEnemies();
-        } else if (!enemy.hit) collisionDetected = true; // player dies
+          this.killEnemies();
+        } else if (!enemy.hit) this.collisionDetected = true; // player dies
       }
     });
   }
 
-  function killEnemies() {
+  killEnemies() {
     // Check if enemy is not alive
-    enemies.forEach((enemy, index) => {
+    this.enemies.forEach((enemy, index) => {
       if (!enemy.alive) {
         // remove enemy
-        enemies.splice(index, 1); // Remove the enemy from the array
-        score += 100;
-        if (enemies.length === 0) {
-          win = true;
-          collisionDetected = true; // stop the game
+        this.enemies.splice(index, 1); // Remove the enemy from the array
+        this.score += 100;
+        if (this.enemies.length === 0) {
+          this.win = true;
+          this.collisionDetected = true; // stop the game
         }
       }
     });
   }
 
-  function writeEndText(win) {
+  writeEndText(win) {
     // win/lose message
     const message = win ? "You Win!" : "Game Over";
-    ctx.save();
-    ctx.fillStyle = "rgb(0,0,0,0.5)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.font = " 130px Helvetica";
-    ctx.fillText(message, canvas.width / 2, canvas.height / 2);
-    ctx.restore();
+    this.ctx.save();
+    this.ctx.fillStyle = "rgb(0,0,0,0.5)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "center";
+    this.ctx.font = " 130px Helvetica";
+    this.ctx.fillText(message, this.canvas.width / 2, this.canvas.height / 2);
+    this.ctx.restore();
   }
 
-  function restartGame() {
-    button.style.display = "none";
+  restartGame() {
+    this.restartButton.style.display = "none";
     // Reset all variables and start a new
-    init();
+    this.init();
   }
 
-  function drawTimeAndScore() {
+  drawTimeAndScore() {
     // Calculate elapsed time
-    const elapsedTime = Date.now() - startTime;
+    const elapsedTime = Date.now() - this.startTime;
     const minutes = Math.floor(elapsedTime / 60000);
     const seconds = Math.floor((elapsedTime % 60000) / 1000);
 
     // Display elapsed time and score in the top-left corner
-    ctx.fillStyle = "white";
-    ctx.font = "16px Arial";
-    ctx.fillText(
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "16px Arial";
+    this.ctx.fillText(
       `Time: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`,
       10,
       20
     );
-    ctx.fillText(`Score: ${score}`, 100, 20);
+    this.ctx.fillText(`Score: ${this.score}`, 100, 20);
   }
 
   // game loop
-  function gameLoop() {
+  gameLoop() {
     // Check if collision has not occurred
-    if (!collisionDetected) {
+    if (!this.collisionDetected) {
       // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    drawTimeAndScore();
-    //drawBackground();
-    platforms.forEach((platform) => {
-      platform.render(ctx);
+    this.drawTimeAndScore();
+    this.platforms.forEach((platform) => {
+      platform.render(this.ctx);
     });
-    player.update(keys, canvas, platforms);
-    handleEnemyCollisions();
-    player.render(ctx);
-    enemies.forEach((enemy) => {
+    this.player.update(this.keys, this.canvas, this.platforms);
+    this.handleEnemyCollisions();
+    this.player.render(this.ctx);
+    this.enemies.forEach((enemy) => {
       enemy.update();
-      enemy.render(ctx);
+      enemy.render(this.ctx);
     });
-    killEnemies();
+    this.killEnemies();
 
-    if (!collisionDetected) {
+    if (!this.collisionDetected) {
       // If collision hasn't occurred, continue the game loop
-      requestAnimationFrame(gameLoop);
+      requestAnimationFrame(this.gameLoop);
       // Collision detected, stop the game
-    } else if (win) {
+    } else if (this.win) {
       // win
-      writeEndText(true);
-      button.style.display = "inline-block";
-      drawTimeAndScore();
+      this.writeEndText(true);
+      this.restartButton.style.display = "inline-block";
+      this.drawTimeAndScore();
     } else {
       //lose
-      writeEndText(false);
-      button.style.display = "inline-block";
+      this.writeEndText(false);
+      this.restartButton.style.display = "inline-block";
     }
   }
+}
 
-  init();
+document.addEventListener("DOMContentLoaded", () => {
+  const game = new Game("gameCanvas", "playerImage", "enemiesImage", "restart");
 });
