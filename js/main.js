@@ -14,32 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Get button from HTML
   const button = document.getElementById("restart");
 
-  // Initialize player (x, y, image)
-  const player = new Player(
-    canvas.width / 2,
-    canvas.height - playerImage.height - 200,
-    playerImage
-  );
-
-  // Record the start time of the game
-  let startTime = Date.now();
-
-  // Initialize enemies (x, y, image, sprite_number)
-  let enemies = [
-    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
-    new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
-    new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
-    new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 0),
-    new Enemy(canvas.width * 1.2, (9 * canvas.height) / 10, enemiesImage, 3),
-  ];
-
-  // Initialize platforms (x, y, w, h)
-  let platforms = [
-    new Platform(57, 337, 100, 20),
-    new Platform(117, 292, 64, 20),
-    new Platform(0, canvas.height - 180, 800, 20),
-  ];
-
+  let startTime;
+  let player;
+  let enemies = [];
+  let platforms = [];
   let collisionDetected = false;
   let win = false;
   let score = 0;
@@ -50,6 +28,38 @@ document.addEventListener("DOMContentLoaded", () => {
   // Keyboard input handling
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
+
+  function init() {
+    // Record the start time of the game
+    startTime = Date.now();
+    collisionDetected = false;
+    win = false;
+    score = 0;
+
+    // Initialize player (x, y, image)
+    player = new Player(
+      canvas.width / 2,
+      canvas.height - playerImage.height - 200,
+      playerImage
+    );
+
+    // Initialize enemies (x, y, image, sprite_number)
+    enemies = [
+      new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
+      new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
+      new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
+      new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 0),
+      new Enemy(canvas.width * 1.2, (9 * canvas.height) / 10, enemiesImage, 3),
+    ];
+
+    // Initialize platforms (x, y, w, h)
+    platforms = [
+      new Platform(57, 337, 100, 20),
+      new Platform(117, 292, 64, 20),
+      new Platform(0, canvas.height - 180, 800, 20),
+    ];
+    gameLoop();
+  }
 
   let keys = {}; // Object to track pressed keys
 
@@ -64,12 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function drawBackground() {
     ctx.fillStyle = "lightblue";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function renderPlatforms(ctx) {
-    platforms.forEach((platform) => {
-      platform.render(ctx);
-    });
   }
 
   function handleEnemyCollisions() {
@@ -117,34 +121,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function restartGame() {
     button.style.display = "none";
-
     // Reset all variables and start a new
-    player.x = canvas.width / 2;
-    player.y = canvas.height - playerImage.height - 200;
-    player.isFacingLeft = false;
-    startTime = Date.now();
+    init();
+  }
 
-    // Initialize enemies (x, y, image, sprite_number)
-    enemies = [
-      new Enemy(canvas.width, canvas.height / 2, enemiesImage, 0),
-      new Enemy(canvas.width, canvas.height / 2, enemiesImage, 1),
-      new Enemy(canvas.width * 1.5, canvas.height / 2, enemiesImage, 2),
-      new Enemy(canvas.width * 2, canvas.height / 2, enemiesImage, 0),
-      new Enemy(canvas.width * 1.2, (9 * canvas.height) / 10, enemiesImage, 3),
-    ];
+  function drawTimeAndScore() {
+    // Calculate elapsed time
+    const elapsedTime = Date.now() - startTime;
+    const minutes = Math.floor(elapsedTime / 60000);
+    const seconds = Math.floor((elapsedTime % 60000) / 1000);
 
-    // Initialize platforms (x, y, w, h)
-    platforms = [
-      new Platform(57, 337, 100, 20),
-      new Platform(117, 292, 64, 20),
-      new Platform(0, canvas.height - 180, 800, 20),
-    ];
-
-    collisionDetected = false;
-    win = false;
-    score = 0;
-
-    gameLoop();
+    // Display elapsed time and score in the top-left corner
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.fillText(
+      `Time: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`,
+      10,
+      20
+    );
+    ctx.fillText(`Score: ${score}`, 100, 20);
   }
 
   // game loop
@@ -154,23 +149,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    // Calculate elapsed time
-    const elapsedTime = Date.now() - startTime;
-    const minutes = Math.floor(elapsedTime / 60000);
-    const seconds = Math.floor((elapsedTime % 60000) / 1000);
-
-    // Display elapsed time in the top-left corner
-    ctx.fillStyle = "white";
-    ctx.font = "16px Arial";
-    ctx.fillText(
-      `Time: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`,
-      10,
-      20
-    );
-    ctx.fillText(`Score: ${score}`, 100, 20);
-
+    drawTimeAndScore();
     //drawBackground();
-    renderPlatforms(ctx);
+    platforms.forEach((platform) => {
+      platform.render(ctx);
+    });
     player.update(keys, canvas, platforms);
     handleEnemyCollisions();
     player.render(ctx);
@@ -179,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
       enemy.render(ctx);
     });
     killEnemies();
+
     if (!collisionDetected) {
       // If collision hasn't occurred, continue the game loop
       requestAnimationFrame(gameLoop);
@@ -187,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // win
       writeEndText(true);
       button.style.display = "inline-block";
+      drawTimeAndScore();
     } else {
       //lose
       writeEndText(false);
@@ -194,5 +179,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  gameLoop();
+  init();
 });
