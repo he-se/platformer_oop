@@ -3,7 +3,7 @@ export default class Player {
   constructor(x, y, image) {
     this.x = x;
     this.y = y;
-    this.yBaseLevel = y;
+    //this.yBaseLevel = y;
     this.image = image;
 
     this.width = 31;
@@ -41,11 +41,6 @@ export default class Player {
     // Apply gravity
     this.velocityY += this.gravity;
     this.y += this.velocityY;
-    // Check for collision with the ground
-    // if (this.y > this.yBaseLevel) {
-    //   this.isOnGround = true;
-    //   this.y = this.yBaseLevel;
-    // }
 
     // Collision detection with platforms
     this.isOnGround = false; // Reset flag
@@ -86,7 +81,7 @@ export default class Player {
     }
   }
 
-  // Method to check collision with a platform horizontally
+  // Method to check collision with a platform
   isColliding(platform) {
     return (
       this.x < platform.x + platform.width &&
@@ -108,8 +103,8 @@ export default class Player {
       ctx.scale(-1, 1); // Flip horizontally
     }
 
-    // Draw black borders around the sprite
     if (this.debug) {
+      // Draw black borders around the sprite
       const borderSize = 1;
       ctx.strokeStyle = "black";
       ctx.strokeRect(

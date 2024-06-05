@@ -5,6 +5,7 @@ import { checkCollision } from "./collision.js";
 
 class Game {
   constructor(canvasId, playerImageId, enemiesImageId, restartButtonId) {
+    // Canvas
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d");
 
@@ -24,11 +25,12 @@ class Game {
     this.startTime;
     this.keys = {}; // Object to track pressed keys
 
-    // Bind event listeners and game loop
+    // Bind event listeners and game loop to Game-object
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.restartGame = this.restartGame.bind(this);
     this.gameLoop = this.gameLoop.bind(this);
+
     // Add event listener to the button
     this.restartButton.addEventListener("click", this.restartGame);
 
@@ -36,9 +38,9 @@ class Game {
     document.addEventListener("keydown", this.handleKeyDown);
     document.addEventListener("keyup", this.handleKeyUp);
 
-    this.init();
+    this.setupGame();
   }
-  init() {
+  setupGame() {
     // Record the start time of the game
     this.startTime = Date.now();
     this.collisionDetected = false;
@@ -86,19 +88,27 @@ class Game {
       ),
     ];
 
-    // Initialize platforms (x, y, w, h)
+    // Initialize platform rectangulars (x, y, w, h, color)
     this.platforms = [
-      new Platform(57, 337, 100, 20),
-      new Platform(117, 292, 64, 20),
-      new Platform(0, this.canvas.height - 180, 800, 20),
+      new Platform(57, 337, 100, 20, "rgba(255, 0, 0, 0.01)"), // transparent
+      new Platform(117, 292, 64, 20, "rgba(255, 0, 0, 0.01)"),
+      new Platform(
+        0,
+        this.canvas.height - 180,
+        800,
+        20,
+        "rgba(255, 0, 0, 0.01)"
+      ),
     ];
+
+    // Start game
     this.gameLoop();
   }
-
+  // Key pressed
   handleKeyDown(event) {
     this.keys[event.key] = true;
   }
-
+  // Key released
   handleKeyUp(event) {
     this.keys[event.key] = false;
   }
@@ -128,6 +138,7 @@ class Game {
         // remove enemy
         this.enemies.splice(index, 1); // Remove the enemy from the array
         this.score += 100;
+        // Check winning condition
         if (this.enemies.length === 0) {
           this.win = true;
           this.collisionDetected = true; // stop the game
@@ -152,7 +163,7 @@ class Game {
   restartGame() {
     this.restartButton.style.display = "none";
     // Reset all variables and start a new
-    this.init();
+    this.setupGame();
   }
 
   drawTimeAndScore() {
@@ -210,5 +221,6 @@ class Game {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Start game
   const game = new Game("gameCanvas", "playerImage", "enemiesImage", "restart");
 });

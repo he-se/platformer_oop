@@ -2,9 +2,9 @@ export default class Enemy {
   debug = false;
   constructor(x, y, image, sprite_number = 0) {
     this.x = x;
+    this.y = y;
     this.orginalX = x;
     this.orginalY = y;
-    this.y = y;
     this.image = image;
     this.sprite_number = sprite_number;
     this.speed = -1;
@@ -71,8 +71,8 @@ export default class Enemy {
     // Render enemy on canvas
     //ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 
-    // Draw black borders around the sprite
     if (this.debug) {
+      // Draw black borders around the sprite
       const borderSize = 1;
       ctx.strokeStyle = "black";
       ctx.strokeRect(
@@ -83,8 +83,10 @@ export default class Enemy {
       );
     }
 
+    // Make image to shrink and finally die
     this.size = this.hit ? this.size * 0.9 : 1;
     if (this.size < 0.1) this.alive = false;
+
     // 9 argument command (image, sx, sy, sw, sh, dx, dy, dw, dh)  -> s= source, d= destination
     ctx.drawImage(
       this.image,
