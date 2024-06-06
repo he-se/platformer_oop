@@ -37,6 +37,16 @@ export default class Player {
     }
   }
 
+  // Method to check collision with a platform
+  isColliding(platform) {
+    return (
+      this.x < platform.x + platform.width &&
+      this.x + this.width > platform.x &&
+      this.y < platform.y + platform.height &&
+      this.y + this.height > platform.y
+    );
+  }
+
   update(keys, canvas, platforms) {
     // Apply gravity
     this.velocityY += this.gravity;
@@ -79,16 +89,6 @@ export default class Player {
       this.jump();
       keys["ArrowUp"] = false;
     }
-  }
-
-  // Method to check collision with a platform
-  isColliding(platform) {
-    return (
-      this.x < platform.x + platform.width &&
-      this.x + this.width > platform.x &&
-      this.y < platform.y + platform.height &&
-      this.y + this.height > platform.y
-    );
   }
 
   render(ctx) {

@@ -118,7 +118,7 @@ class Game {
     this.enemies.forEach((enemy, index) => {
       if (checkCollision(this.player, enemy)) {
         // Handle player-enemy collision
-        // if hit on top
+        // if hit on top, player kills enemy
         if (
           this.player.velocityY > 0 &&
           this.player.y + this.player.height < enemy.y + 20
@@ -183,25 +183,37 @@ class Game {
     this.ctx.fillText(`Score: ${this.score}`, 100, 20);
   }
 
-  // game loop
-  gameLoop() {
-    // Check if collision has not occurred
-    if (!this.collisionDetected) {
-      // Clear canvas
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+  update() {
+    this.player.update(this.keys, this.canvas, this.platforms);
+    this.handleEnemyCollisions();
+    this.enemies.forEach((enemy) => {
+      enemy.update();
+    });
+  }
+
+  render() {
     this.drawTimeAndScore();
     this.platforms.forEach((platform) => {
       platform.render(this.ctx);
     });
-    this.player.update(this.keys, this.canvas, this.platforms);
-    this.handleEnemyCollisions();
+
     this.player.render(this.ctx);
     this.enemies.forEach((enemy) => {
-      enemy.update();
       enemy.render(this.ctx);
     });
     this.killEnemies();
+  }
+
+  // game loop
+  gameLoop() {
+    // Clear canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // if (!this.collisionDetected) {
+    //   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // }
+
+    this.update();
+    this.render();
 
     if (!this.collisionDetected) {
       // If collision hasn't occurred, continue the game loop
