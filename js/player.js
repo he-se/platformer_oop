@@ -47,7 +47,7 @@ export default class Player {
     );
   }
 
-  update(keys, canvas, platforms) {
+  update(keys, canvas, platforms, bricks) {
     // Apply gravity
     this.velocityY += this.gravity;
     this.y += this.velocityY;
@@ -74,6 +74,26 @@ export default class Player {
         } else if (this.velocityX < 0) {
           // Player is moving left
           this.x = platform.x + platform.width; // Snap player to right edge of platform
+        }
+      }
+    });
+
+    // Collision detection with bricks
+    bricks.forEach((brick) => {
+      if (this.isColliding(brick)) {
+        if (this.velocityY > 0 && this.y + this.height < brick.y + 20) {
+          // Player is falling
+        } else if (this.velocityY < 0 && this.y > brick.y + brick.height - 20) {
+          // Player is jumping and hits the ceiling
+          this.y = brick.y + brick.height; // Snap player to bottom of brick
+          this.velocityY = 0; // Stop upward velocity
+          brick.onHit();
+        } else if (this.velocityX > 0) {
+          // Player is moving right
+          this.x = brick.x - this.width; // Snap player to left edge of brick
+        } else if (this.velocityX < 0) {
+          // Player is moving left
+          this.x = brick.x + brick.width; // Snap player to right edge of brick
         }
       }
     });

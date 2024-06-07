@@ -1,10 +1,17 @@
 import Player from "./player.js";
 import Enemy from "./enemy.js";
 import Platform from "./platform.js";
+import Brick from "./brick.js";
 import { checkCollision } from "./collision.js";
 
 class Game {
-  constructor(canvasId, playerImageId, enemiesImageId, restartButtonId) {
+  constructor(
+    canvasId,
+    playerImageId,
+    enemiesImageId,
+    restartButtonId,
+    coinImageId
+  ) {
     // Canvas
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d");
@@ -12,6 +19,7 @@ class Game {
     // Get images from HTML
     this.playerImage = document.getElementById(playerImageId);
     this.enemiesImage = document.getElementById(enemiesImageId); // sprite sheet
+    this.coinImage = document.getElementById(coinImageId);
 
     // Get button from HTML
     this.restartButton = document.getElementById(restartButtonId);
@@ -19,6 +27,8 @@ class Game {
     this.player;
     this.enemies = [];
     this.platforms = [];
+    this.bricks = [];
+    this.countedBricks = new Set(); // for score counting
     this.collisionDetected = false;
     this.win = false;
     this.score = 0;
@@ -101,6 +111,14 @@ class Game {
       ),
     ];
 
+    // Initialize brick rectangulars (x, y, width, height, color, value, coinImage)
+    this.bricks = [
+      new Brick(520, 270, 40, 50, "rgba(255, 0, 0, 0.01)", 100, coinImage), // transparent
+      new Brick(445, 290, 30, 40, "rgba(255, 0, 0, 0.01)", 100, coinImage),
+      new Brick(385, 310, 30, 30, "rgba(255, 0, 0, 0.01)", 100, coinImage),
+      new Brick(335, 320, 40, 30, "rgba(255, 0, 0, 0.01)", 100, coinImage),
+    ];
+
     // Start game
     this.gameLoop();
   }
@@ -147,6 +165,15 @@ class Game {
     });
   }
 
+  countCoins() {
+    this.bricks.forEach((brick) => {
+      if (brick.hit && !this.countedBricks.has(brick)) {
+        this.score += brick.score();
+        this.countedBricks.add(brick);
+      }
+    });
+  }
+
   writeEndText(win) {
     // win/lose message
     const message = win ? "You Win!" : "Game Over";
@@ -184,17 +211,21 @@ class Game {
   }
 
   update() {
-    this.player.update(this.keys, this.canvas, this.platforms);
+    this.player.update(this.keys, this.canvas, this.platforms, this.bricks);
     this.handleEnemyCollisions();
     this.enemies.forEach((enemy) => {
       enemy.update();
     });
+    this.countCoins();
   }
 
   render() {
     this.drawTimeAndScore();
     this.platforms.forEach((platform) => {
       platform.render(this.ctx);
+    });
+    this.bricks.forEach((brick) => {
+      brick.render(this.ctx);
     });
 
     this.player.render(this.ctx);
