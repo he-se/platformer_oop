@@ -1,5 +1,6 @@
 import Player from "./player.js";
 import Enemy from "./enemy.js";
+import Hedgehog from "./hedgehog.js";
 import Platform from "./platform.js";
 import Brick from "./brick.js";
 import { checkCollision } from "./collision.js";
@@ -26,12 +27,14 @@ class Game {
 
     this.player;
     this.enemies = [];
+    this.hedgehogs = [];
     this.platforms = [];
     this.bricks = [];
     this.countedBricks = new Set(); // for score counting
     this.collisionDetected = false;
     this.win = false;
     this.score = 0;
+    this.maxScore = 1000;
     this.startTime;
     this.keys = {}; // Object to track pressed keys
 
@@ -96,6 +99,46 @@ class Game {
         this.enemiesImage,
         3
       ),
+      new Enemy(
+        this.canvas.width * 1.1,
+        this.canvas.height / 3,
+        this.enemiesImage,
+        0
+      ),
+      new Enemy(
+        this.canvas.width * 1.4,
+        this.canvas.height / 4,
+        this.enemiesImage,
+        1
+      ),
+      new Enemy(
+        this.canvas.width * 1.8,
+        this.canvas.height / 5,
+        this.enemiesImage,
+        2
+      ),
+      new Enemy(
+        this.canvas.width * 1.25,
+        this.canvas.height / 2.5,
+        this.enemiesImage,
+        2
+      ),
+    ];
+
+    // Initialize hedgehog (x, y, velocityX, velocityY)
+    this.hedgehogs = [
+      new Hedgehog(
+        this.canvas.width * 1.2,
+        (6 * this.canvas.height) / 10,
+        -0.4,
+        0.03
+      ),
+      new Hedgehog(
+        this.canvas.width * 1.1,
+        (9 * this.canvas.height) / 10,
+        -1,
+        -0.14
+      ),
     ];
 
     // Initialize platform rectangulars (x, y, w, h, color)
@@ -157,7 +200,7 @@ class Game {
         this.enemies.splice(index, 1); // Remove the enemy from the array
         this.score += 100;
         // Check winning condition
-        if (this.enemies.length === 0) {
+        if (this.enemies.length === 0 || this.score >= this.maxScore) {
           this.win = true;
           this.collisionDetected = true; // stop the game
         }
@@ -207,7 +250,7 @@ class Game {
       10,
       20
     );
-    this.ctx.fillText(`Score: ${this.score}`, 100, 20);
+    this.ctx.fillText(`Score: ${this.score} / ${this.maxScore}`, 100, 20);
   }
 
   update() {
@@ -215,6 +258,9 @@ class Game {
     this.handleEnemyCollisions();
     this.enemies.forEach((enemy) => {
       enemy.update();
+    });
+    this.hedgehogs.forEach((hedgehog) => {
+      hedgehog.update();
     });
     this.countCoins();
   }
@@ -231,6 +277,9 @@ class Game {
     this.player.render(this.ctx);
     this.enemies.forEach((enemy) => {
       enemy.render(this.ctx);
+    });
+    this.hedgehogs.forEach((hedgehog) => {
+      hedgehog.render(this.ctx);
     });
     this.killEnemies();
   }
