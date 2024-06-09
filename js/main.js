@@ -163,7 +163,7 @@ class Game {
     ];
 
     // Start game
-    this.gameLoop();
+    this.gameLoop(0);
   }
   // Key pressed
   handleKeyDown(event) {
@@ -257,12 +257,12 @@ class Game {
     this.ctx.fillText(`Score: ${this.score} / ${this.maxScore}`, 100, 20);
   }
 
-  update() {
+  update(deltaTime) {
     this.player.update(this.keys, this.canvas, this.platforms, this.bricks);
     this.handleEnemyCollisions();
     this.killEnemies();
     this.enemies.forEach((enemy) => {
-      enemy.update();
+      enemy.update(deltaTime);
     });
     this.hedgehogs.forEach((hedgehog) => {
       hedgehog.update();
@@ -290,14 +290,14 @@ class Game {
   }
 
   // game loop
-  gameLoop() {
+  gameLoop(deltaTime) {
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     // if (!this.collisionDetected) {
     //   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     // }
 
-    this.update();
+    this.update(deltaTime);
     this.render();
 
     if (!this.collisionDetected) {

@@ -16,9 +16,14 @@ export default class Enemy {
     // distance between sprites
     this.spriteWidth = 30;
     this.spriteHeight = 30;
+    // Animation
+    this.frameX = 0; // Sprite frame
+    this.maxFrameX = 1; // Number of sprite frames - 1
+    this.frameTime = 10000; // us, sets animation speed
+    this.time = 0;
     // select a sprite from the sprite sheet
     switch (this.sprite_number) {
-      case 0:
+      case 0: // Fly
         this.spriteX = 4;
         this.spriteY = 2;
         break;
@@ -30,7 +35,7 @@ export default class Enemy {
         this.spriteX = 0;
         this.spriteY = 2;
         break;
-      case 3:
+      case 3: // Hedgehog
         this.spriteX = 0;
         this.spriteY = 9;
         this.spriteOffsetX = 14;
@@ -49,10 +54,15 @@ export default class Enemy {
     this.size = 1;
   }
 
-  update() {
+  update(deltaTime) {
     if (!this.hit) {
       this.x += this.speed;
       this.y += this.velocityY;
+      if (this.time > this.frameTime) {
+        if (this.frameX < this.maxFrameX) this.frameX++;
+        else this.frameX = 0;
+        this.time = 0;
+      } else this.time += deltaTime;
     }
 
     // move enemy to the right again, random distance from canvas
@@ -90,7 +100,7 @@ export default class Enemy {
     // 9 argument command (image, sx, sy, sw, sh, dx, dy, dw, dh)  -> s= source, d= destination
     ctx.drawImage(
       this.image,
-      this.spriteOffsetX + this.spriteX * this.spriteWidth,
+      this.spriteOffsetX + (this.spriteX + this.frameX) * this.spriteWidth,
       this.spriteOffsetY + this.spriteY * this.spriteHeight,
       this.width,
       this.height,
