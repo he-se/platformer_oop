@@ -199,22 +199,26 @@ class Game {
         // remove enemy
         this.enemies.splice(index, 1); // Remove the enemy from the array
         this.score += 100;
-        // Check winning condition
-        if (this.enemies.length === 0 || this.score >= this.maxScore) {
-          this.win = true;
-          this.collisionDetected = true; // stop the game
-        }
       }
     });
   }
 
   countCoins() {
+    // Count scores of hit bricks
     this.bricks.forEach((brick) => {
       if (brick.hit && !this.countedBricks.has(brick)) {
         this.score += brick.score();
         this.countedBricks.add(brick);
       }
     });
+  }
+
+  checkWinning() {
+    // Check winning condition
+    if (this.enemies.length === 0 || this.score >= this.maxScore) {
+      this.win = true;
+      this.collisionDetected = true; // stop the game
+    }
   }
 
   writeEndText(win) {
@@ -256,6 +260,7 @@ class Game {
   update() {
     this.player.update(this.keys, this.canvas, this.platforms, this.bricks);
     this.handleEnemyCollisions();
+    this.killEnemies();
     this.enemies.forEach((enemy) => {
       enemy.update();
     });
@@ -263,6 +268,7 @@ class Game {
       hedgehog.update();
     });
     this.countCoins();
+    this.checkWinning();
   }
 
   render() {
@@ -281,7 +287,6 @@ class Game {
     this.hedgehogs.forEach((hedgehog) => {
       hedgehog.render(this.ctx);
     });
-    this.killEnemies();
   }
 
   // game loop
