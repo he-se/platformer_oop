@@ -30,7 +30,6 @@ class Game {
     this.hedgehogs = [];
     this.platforms = [];
     this.bricks = [];
-    this.countedBricks = new Set(); // for score counting
     this.collisionDetected = false;
     this.win = false;
     this.score = 0;
@@ -206,9 +205,8 @@ class Game {
   countCoins() {
     // Count scores of hit bricks
     this.bricks.forEach((brick) => {
-      if (brick.hit && !this.countedBricks.has(brick)) {
+      if (brick.getState() === 2) {
         this.score += brick.score();
-        this.countedBricks.add(brick);
       }
     });
   }

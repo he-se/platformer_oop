@@ -10,22 +10,26 @@ export default class Brick {
     this.value = value;
     this.coinImage = coinImage;
     this.coin = new Coin(this.x, this.y - 70, this.coinImage);
-    this.used = false; // can be hit only once
-    this.hit = false;
-    this.counted = false;
+    this.state = 0; // states are: initial = 0, hit = 1, used = 2, counted = 3 Note:JS doesn't support enum
+  }
+
+  getState() {
+    return this.state;
   }
 
   onHit() {
-    this.hit = true;
-    // Set an interval to change this.used to true after 2 seconds
-    setInterval(() => {
-      this.used = true;
-    }, 2000);
+    if (this.state === 0) {
+      this.state = 1;
+      // Set an timeout to change state to used after 2 seconds
+      setTimeout(() => {
+        this.state = 2;
+      }, 2000);
+    }
   }
 
   score() {
-    if (this.hit && !this.counted) {
-      this.counted = true;
+    if (this.state === 2) {
+      this.state = 3;
       return this.value; // Score for hitting a brick
     }
     return 0;
@@ -34,6 +38,6 @@ export default class Brick {
   render(ctx) {
     ctx.fillStyle = this.color;
     ctx.fillRect(this.x, this.y, this.width, this.height);
-    if (this.hit && !this.used) this.coin.render(ctx);
+    if (this.state === 1) this.coin.render(ctx);
   }
 }
